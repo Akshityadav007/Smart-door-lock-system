@@ -6,8 +6,8 @@
 #define rst 9
 #define dio0 2
 #define Buzzer 7
-#define RELAY_IO   8
-#define theft   6
+#define RELAY_IO 8
+#define theft 6
 #define BAND 433E6    //433E6 for Asia, 866E6 for Europe, 915E6 for North America
 String LoRaMessage = "";
 #include<LiquidCrystal.h>
@@ -21,8 +21,7 @@ String readingID;
 
 
 // Replaces placeholder with RElay values
-String
-processor (const String & var)
+String processor (const String &var)
 {
   //Serial.println(var);
   if (var == "STATUS")
@@ -36,8 +35,7 @@ processor (const String & var)
   return String ();
 }
 
-void
-setup ()
+void setup ()
 {
   lcd.begin (16, 2);
   lcd.setCursor (0, 0);
@@ -49,7 +47,7 @@ setup ()
   pinMode (Buzzer, OUTPUT);
   pinMode (theft, INPUT_PULLUP);
   digitalWrite (RELAY_IO, HIGH);
-  int counter;
+  int counter = 0;
   //setup LoRa transceiver module
   LoRa.setPins (ss, rst, dio0); //setup LoRa transceiver module
   while (!LoRa.begin (BAND) && counter < 10)
@@ -62,25 +60,26 @@ setup ()
     {
       // Increment readingID on every new reading
       Serial.println ("Starting LoRa faiBuzzer!");
-    }
+    } 
   Serial.println ("LoRa Initialization OK!");
   delay (2000);
   lcd.clear ();
 }
 
-void
-loop ()
+void loop ()
 {
   lcd.setCursor (0, 0);
   lcd.print ("Cmd waiting.....");
   int packetSize = LoRa.parsePacket ();
   if (packetSize)
     {
-      Serial.print ("Lora packet received: ");
+      Serial.print("Lora packet received: ");
       while (LoRa.available ()) // Read packet
   {
     String LoRaData = LoRa.readString ();
-    Serial.print (LoRaData);
+//    Serial.print("LoRa data = ");
+//    Serial.print(LoRaData);
+//    Serial.print ("\n");
     int pos1 = LoRaData.indexOf ('&');
     readingID = LoRaData.substring (0, pos1); // Get readingID
     status = LoRaData.substring (pos1 + 1, LoRaData.length ()); // Get status
@@ -96,10 +95,10 @@ loop ()
   }
       rssi = LoRa.packetRssi ();  // Get RSSI
       Serial.print (" with RSSI ");
-      Serial.println (rssi);
+      //Serial.println (rssi);
     }
   int read_switch = digitalRead (theft);
-  if (read_switch == LOW)
+  if (read_switch == HIGH)
     {
       int data_s = 5;
       LoRaMessage = String (data_s);
@@ -108,7 +107,7 @@ loop ()
       rssi = LoRa.packetRssi ();
       Serial.print ("Sending packet: ");
       //Serial.println(readingID);
-      Serial.println (LoRaMessage);
+     // Serial.println (LoRaMessage);
       LoRa.endPacket ();
     }
 }
